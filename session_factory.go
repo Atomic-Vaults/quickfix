@@ -76,7 +76,7 @@ func (f sessionFactory) createSession(
 		return
 	}
 	application.OnCreate(session.sessionID)
-	session.log.OnEvent("Created session")
+	session.log.OnEvent("Created session!")
 
 	return
 }
