@@ -507,8 +507,6 @@ func (s *session) handleLogon(msg *Message) error {
 		}
 	}
 
-	nextSenderMsgNumAtLogonReceived := s.store.NextSenderMsgSeqNum()
-
 	// Make sure this is a valid session before resetting the store.
 	if err := s.verifyMsgAgainstAppImpl(msg); err != nil {
 		return err
@@ -556,6 +554,7 @@ func (s *session) handleLogon(msg *Message) error {
 
 	// Evaluate tag 789 to see if we end up with an implied gapfill/resend.
 	if s.EnableNextExpectedMsgSeqNum && !msg.Body.Has(tagResetSeqNumFlag) {
+		nextSenderMsgNumAtLogonReceived := s.store.NextSenderMsgSeqNum()
 		targetWantsNextSeqNumToBe, getErr := msg.Body.GetInt(tagNextExpectedMsgSeqNum)
 		if getErr == nil {
 			if targetWantsNextSeqNumToBe != nextSenderMsgNumAtLogonReceived {
