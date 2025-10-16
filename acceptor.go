@@ -246,6 +246,11 @@ func (a *Acceptor) handleConnection(netConn net.Conn) {
 	msgBytes, err := parser.ReadMessage()
 	if err != nil {
 		if err == io.EOF {
+			if msgBytes == nil || msgBytes.Len() == 0 {
+				// Spurious EOF, likely NLB probe or zero-byte connect/disconnect
+				// Skip and continue listening
+				return
+			}
 			a.globalLog.OnEvent("Connection Terminated")
 		} else {
 			a.globalLog.OnEvent(err.Error())
