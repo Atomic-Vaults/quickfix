@@ -15,25 +15,53 @@
 
 package quickfix
 
-import "io"
+import (
+	"io"
+	"time"
+)
 
-func writeLoop(connection io.Writer, messageOut chan []byte, log Log) {
+type writeDeadlineSetter interface {
+	SetWriteDeadline(t time.Time) error
+}
+
+type readDeadlineSetter interface {
+	SetReadDeadline(t time.Time) error
+}
+
+func writeLoop(connection io.Writer, messageOut chan []byte, log Log, writeTimeout time.Duration) {
+	deadlineSetter, canSetWriteDeadline := connection.(writeDeadlineSetter)
+
 	for {
 		msg, ok := <-messageOut
 		if !ok {
 			return
 		}
 
+		if writeTimeout > 0 && canSetWriteDeadline {
+			if err := deadlineSetter.SetWriteDeadline(time.Now().Add(writeTimeout)); err != nil {
+				log.OnEvent(err.Error())
+				return
+			}
+		}
+
 		if _, err := connection.Write(msg); err != nil {
 			log.OnEvent(err.Error())
+			return
 		}
 	}
 }
 
-func readLoop(parser *parser, msgIn chan fixIn, log Log) {
+func readLoop(parser *parser, msgIn chan fixIn, log Log, readTimeout time.Duration, deadlineSetter readDeadlineSetter) {
 	defer close(msgIn)
 
 	for {
+		if readTimeout > 0 && deadlineSetter != nil {
+			if err := deadlineSetter.SetReadDeadline(time.Now().Add(readTimeout)); err != nil {
+				log.OnEvent(err.Error())
+				return
+			}
+		}
+
 		msg, err := parser.ReadMessage()
 		if err != nil {
 			log.OnEvent(err.Error())

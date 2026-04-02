@@ -26,5 +26,7 @@ type SessionSettings struct {
 	ReconnectInterval    time.Duration
 	LogoutTimeout        time.Duration
 	LogonTimeout         time.Duration
+	SocketWriteTimeout   time.Duration
+	SocketReadTimeout    time.Duration
 	SocketConnectAddress []string
 }

@@ -365,10 +365,10 @@ func (a *Acceptor) handleConnection(netConn net.Conn) {
 
 	go func() {
 		msgIn <- fixIn{msgBytes, parser.lastRead}
-		readLoop(parser, msgIn, a.globalLog)
+		readLoop(parser, msgIn, a.globalLog, session.SocketReadTimeout, netConn)
 	}()
 
-	writeLoop(netConn, msgOut, a.globalLog)
+	writeLoop(netConn, msgOut, a.globalLog, session.SocketWriteTimeout)
 }
 
 func (a *Acceptor) dynamicSessionsLoop() {
