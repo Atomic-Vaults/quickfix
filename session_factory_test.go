@@ -618,6 +618,27 @@ func (s *SessionFactorySuite) TestNewSessionBuildInitiatorsValidLogonTimeout() {
 	s.NotNil(err, "LogonTimeout must be greater than zero")
 }
 
+func (s *SessionFactorySuite) TestNewSessionValidSocketReadTimeout() {
+	s.sessionFactory.BuildInitiators = true
+	s.SessionSettings.Set(config.HeartBtInt, "34")
+	s.SessionSettings.Set(config.SocketConnectHost, "127.0.0.1")
+	s.SessionSettings.Set(config.SocketConnectPort, "3000")
+
+	s.SessionSettings.Set(config.SocketReadTimeout, "45")
+	session, err := s.newSession(s.SessionID, s.MessageStoreFactory, s.SessionSettings, s.LogFactory, s.App)
+	s.Nil(err)
+	s.Equal(45*time.Second, session.SocketReadTimeout)
+
+	s.SessionSettings.Set(config.SocketReadTimeout, "250ms")
+	session, err = s.newSession(s.SessionID, s.MessageStoreFactory, s.SessionSettings, s.LogFactory, s.App)
+	s.Nil(err)
+	s.Equal(250*time.Millisecond, session.SocketReadTimeout)
+
+	s.SessionSettings.Set(config.SocketReadTimeout, "not a duration")
+	_, err = s.newSession(s.SessionID, s.MessageStoreFactory, s.SessionSettings, s.LogFactory, s.App)
+	s.NotNil(err, "SocketReadTimeout must be a duration or number of seconds")
+}
+
 func (s *SessionFactorySuite) TestConfigureSocketConnectAddress() {
 	sess := new(session)
 	err := s.configureSocketConnectAddress(sess, s.SessionSettings)

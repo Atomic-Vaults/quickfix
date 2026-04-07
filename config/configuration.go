@@ -559,6 +559,42 @@ const (
 	//  - A valid go time.Duration
 	SocketTimeout string = "SocketTimeout"
 
+	// SocketWriteTimeout sets the duration of timeout for socket write operations.
+	// Used by both initiators and acceptors.
+	//
+	// When a write times out, the connection write loop exits and the session can
+	// disconnect/reconnect instead of blocking indefinitely.
+	//
+	// Example Values:
+	//  - SocketWriteTimeout=30s # 30 seconds
+	//  - SocketWriteTimeout=2m  # 2 minutes
+	//
+	// Required: No
+	//
+	// Default: 0 (no timeout)
+	//
+	// Valid Values:
+	//  - A valid go time.Duration
+	SocketWriteTimeout string = "SocketWriteTimeout"
+
+	// SocketReadTimeout sets the duration of timeout for socket read operations.
+	// Used by both initiators and acceptors.
+	//
+	// When a read times out, the connection read loop exits and the session can
+	// disconnect/reconnect instead of waiting indefinitely on a blocked read.
+	//
+	// Example Values:
+	//  - SocketReadTimeout=30s # 30 seconds
+	//  - SocketReadTimeout=2m  # 2 minutes
+	//
+	// Required: No
+	//
+	// Default: 0 (no timeout)
+	//
+	// Valid Values:
+	//  - A valid go time.Duration
+	SocketReadTimeout string = "SocketReadTimeout"
+
 	// ProxyType sets the type of proxy server to connect to.
 	// Only used for initiators.
 	//

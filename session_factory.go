@@ -375,6 +375,36 @@ func (f sessionFactory) newSession(
 		s.DisableMessagePersist = !persistMessages
 	}
 
+	if settings.HasSetting(config.SocketWriteTimeout) {
+		timeout, timeoutErr := settings.DurationSetting(config.SocketWriteTimeout)
+		if timeoutErr != nil {
+			timeoutInt, intErr := settings.IntSetting(config.SocketWriteTimeout)
+			if intErr != nil {
+				err = timeoutErr
+				return
+			}
+
+			timeout = time.Duration(timeoutInt) * time.Second
+		}
+
+		s.SocketWriteTimeout = timeout
+	}
+
+	if settings.HasSetting(config.SocketReadTimeout) {
+		timeout, timeoutErr := settings.DurationSetting(config.SocketReadTimeout)
+		if timeoutErr != nil {
+			timeoutInt, intErr := settings.IntSetting(config.SocketReadTimeout)
+			if intErr != nil {
+				err = timeoutErr
+				return
+			}
+
+			timeout = time.Duration(timeoutInt) * time.Second
+		}
+
+		s.SocketReadTimeout = timeout
+	}
+
 	if f.BuildInitiators {
 		if err = f.buildInitiatorSettings(s, settings); err != nil {
 			return
